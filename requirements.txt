@@ -1,0 +1,6 @@
+grequests
+BeautifulSoup4
+fastapi
+uvicorn
+requests
+groq

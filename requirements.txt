@@ -1,6 +1,22 @@
-grequests
-BeautifulSoup4
-fastapi
-uvicorn
-requests
-groq
+# bs4
+# cloudscraper
+# python-dotenv
+# fastapi
+# uvicorn
+# torch
+# langchain
+# langchain-community
+# langchain-core
+# langchain-milvus
+# langchain-text-splitters
+# langchain-groq
+
+beautifulsoup4==4.13.3
+cloudscraper==1.2.71
+fastapi==0.115.12
+langchain==0.3.21
+pydantic==2.10.6
+pymilvus==2.5.6
+pymilvus_model==0.3.1
+python-dotenv==1.1.0
+sentence_transformers==3.4.1

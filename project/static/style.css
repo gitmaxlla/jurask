@@ -1,0 +1,131 @@
+:root {
+    --main-content: #2c2c34ff;
+    --accent: #ef6351ff;
+    --accent-light: #f38375ff;
+    --accent-supplementary: #59cd90ff;
+    --main-background: #fcf6f6;
+}
+
+#main-icon {
+    width: 70px;
+    height: 70px;
+}
+
+.none {
+    display: none;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+body {
+    background-color: var(--main-background);
+    color: var(--main-content);
+    font-family: 'Kurale';
+    font-size: 1.2rem;
+    font-weight: 500;
+    text-align: justify;
+    margin: 0px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-self: center;
+
+    width: 80vw;
+    gap: 20px;
+}
+
+button {
+    padding: 10px;
+    color: var(--main-background);
+    background-color: var(--accent-light);
+    border-color: var(--accent);
+    border: 1px solid;
+    font-family: 'Kurale';
+    font-weight: 900;
+    font-size: 1.2rem;
+    border-radius: 15px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    transition: box-shadow 1s;
+}
+
+button:hover {
+    box-shadow: 0px 0px 100px var(--accent);
+}
+
+#input {
+    resize: none;
+    border-radius: 10px;
+    border-color: var(--accent);
+    border: 1px solid;
+    font-size: 1.2rem;
+    background-color: var(--main-background);
+    padding: 10px;
+    border-color: var(--accent);
+    color: var(--accent);
+    min-width: 300px;
+    transition: box-shadow 0.5s, width 0.1s;
+}
+
+#input:focus {
+    outline: none;
+    box-shadow: 0px 0px 150px var(--accent);
+}
+
+hr {
+    border-color: var(--accent);
+    border-top: 0;
+    margin: 1rem;
+}
+
+#input-area {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+p {
+    margin: 0.5rem;
+}
+
+header > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-left: 10%;
+    margin-right: 10%;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+#title-icon {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    text-align: center;
+    padding-top: 1rem;
+    width: 100%;
+    font-size: 3rem;
+    color: var(--accent);
+    font-weight: 900;
+    backdrop-filter: blur(20px);
+}
+
+#references {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+}

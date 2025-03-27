@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Jurask Demo</title>
+        <meta charset="UTF-8">
+
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/x-icon" href="jurask_logo.ico">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Kurale&display=swap" rel="stylesheet">
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <header>
+                <div>
+                    <div id="title-icon">
+                        <img id="main-icon" src="jurask_logo.png">
+                        JURASK
+                    </div>
+                    
+                    <div id="input-area">
+                        <div id="input" contenteditable="true">Какие права гарантируются гражданам РФ?</div>
+                        <button type="button" id="submit" onclick="send_query()">Спросить</button>
+                    </div>
+                </div>
+
+                <hr>
+            </header>
+
+            <main>
+                <p id="status">Добро пожаловать в систему Jurask! Данная система использует возможности языковых моделей для умного поиска информации по Конституции РФ. Чтобы начать, введите свой запрос выше.</p>
+
+                <div id="answer" class="">
+                    <p id="answer-text">
+                    </p>
+                </div>
+
+
+                <div id="references">
+                    <!-- <button class="referenced-article-btn">Example</button>
+                    <div class="referenced-article-text">
+                        123123123
+                    </div> -->
+                </div>
+            </main>
+        </div>
+
+        <div id="input-measure-wrapper" style="display: flex; position: absolute; top: 0px;">
+            <div id="input-width-measure" class="hidden" contenteditable="true">Какие права гарантируются гражданам РФ?</div>
+        </div>
+
+        <script type="text/javascript" src="script.js"></script>
+    </body>
+</html>

@@ -3,11 +3,7 @@ from pymilvus import MilvusClient
 from pymilvus import model
 from sentence_transformers import SentenceTransformer
 
-
-class SearchQuery:
-    def __init__(self, user_input, picked_section):
-        self.user_input = user_input
-        self.picked_section = picked_section
+from .data_models import SearchQuery
 
 
 class Dataframe:

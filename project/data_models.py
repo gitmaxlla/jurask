@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
 class AugmentedLawQuery(BaseModel):
@@ -22,7 +22,7 @@ class UserQuestion(BaseModel):
 
 class GeneratedResponse(BaseModel):
     answer: str
-    articles: List[Optional[str]]
+    articles: Dict
 
 
 class SearchQuery:

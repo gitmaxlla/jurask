@@ -2,7 +2,7 @@ from langchain.chat_models import init_chat_model
 from dotenv import load_dotenv
 import json
 
-from .data_models import AugmentedLawQuery, AnswerQuery
+from .data_models import AugmentedLawQuery, AnswerQuery, GeneratedResponse
 from .vector_db import constitution, client, search_database, SearchQuery, format_search_result
 from string import Template
 
@@ -38,14 +38,12 @@ def answer(question):
         content_by_article[entry["entity"]["article"]] = entry["entity"]["text"]
     
     llm_response = answering_llm.invoke(complete_answer_template.substitute(llm_context=llm_context, user_question=response.question))
-    answer = {"answer": llm_response.answer, "references": {}}
+    references = {}
 
     for article in llm_response.articles:
-        answer["references"][response.choice + ". " + article] = content_by_article[article]
+        references[response.choice + ". " + article] = content_by_article[article]
 
-    print(json.dumps(answer, ensure_ascii=False))
-
-    return answer
+    return {"answer": llm_response.answer, "articles": references}
 
 
 if __name__ == "__main__":

@@ -1,5 +1,9 @@
+<img src="project/static/jurask_logo.png" alt="jurask logo" width=50>
+
 # Jurask Project
+
 > Your intelligent juridical document look-up tool.
+
 ---
 
 ## Features
@@ -33,3 +37,14 @@ Alternatively, you may also make queries through the CLI. Just run
 > python -m project.llm
 
 and wait until you're prompted to enter your question with a dinosaur-styled invitation: ``jurask ---^*>``
+
+## Technology
+Built with **Langchain**, **Milvus**, and **FastAPI**.
+
+## Known problems
+1. No token limit considerations both for LLM and vector embeddings
+2. ReAct should be implemented to allow answering questions requiring more than one retrieval
+
+## Logo mascot lore?
+
+Troodon Juryik does not come from the Jurassic era, but surprisingly you can still jurask him if you want.

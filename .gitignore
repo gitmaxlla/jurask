@@ -3,3 +3,4 @@ note
 .env
 data/
 /**/__pycache__/
+.idea

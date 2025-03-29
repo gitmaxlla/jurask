@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup as bs
 from bs4.element import Tag
 from typing import List
 
+import os
+
 import json
 
 LAW_INDEXES_URLS = [
@@ -58,12 +60,14 @@ def get_titles_of_laws() -> List[TextWithUrl]:
     #     titles_texts.extend(titles_on_page_text)
     # return titles_texts
 
+
 def get_text_of_article(url: str) -> str:
     scraper = cloudscraper.create_scraper()
     response = scraper.get(url, headers=HEADERS, stream=True, allow_redirects=True)
     parser = bs(response.text, "html.parser")
     text = parser.find("section", attrs={"class": "content"}).get_text(separator=' ', strip=True).strip()
     return text
+
 
 def get_articles_of_law(url: str) -> List[TextWithUrl]:
     scraper = cloudscraper.create_scraper()
@@ -90,6 +94,7 @@ def get_constitution_data() -> dict:
     for link in content:
         if "Глава" in link.text:
             result[link.text] = __get_constitution_chunks(link.get('href'))
+    return result
 
 
 def __get_constitution_chunks(url: str) -> dict:
@@ -105,7 +110,7 @@ def __get_constitution_chunks(url: str) -> dict:
     return result
 
 
-def __get_chunks_from_article(url: str) -> str:
+def __get_chunks_from_article(url: str) -> List[str]:
     scraper = cloudscraper.create_scraper()
     response = scraper.get(url, headers=HEADERS, stream=True, allow_redirects=True)
     parser = bs(response.text, "html.parser")
@@ -116,9 +121,12 @@ def __get_chunks_from_article(url: str) -> str:
         result.append(text)
     return result
 
+
 if __name__ == "__main__":
-    with open("/data/constitution.json", "w") as f:
-        json.dump(get_constitution_data(), f, indent=2, ensure_ascii=False)
+    os.makedirs("data", exist_ok=True)
+    data = get_constitution_data()
+    with open("data/constitution.json", "w") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
     # for article in get_articles_of_law('https://base.garant.ru/12125267/'):
     #     if article.text in to_find:

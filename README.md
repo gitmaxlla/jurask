@@ -8,7 +8,13 @@
 
 ## Features
 * Supported law base:
-  * Russian Constitution
+  * Контитуция РФ
+  * TODO:
+  * ФЗ "О защите прав потребителей"
+  * ФЗ "Об ООО"
+  * ФЗ "Об АО"
+  * ФЗ "Об образовании"
+  * ФЗ "О рекламе"
 *  API requirements
    *  Groq API key
 *  Query language
@@ -48,3 +54,10 @@ Built with **Langchain**, **Milvus**, and **FastAPI**.
 ## Logo mascot lore?
 
 Troodon Juryik does not come from the Jurassic era, but surprisingly you can still jurask him if you want.
+
+deployment: local, zilliz
+700 words limit to ensure input token limit does not run out (continuous)
+(or 4500 - per minute)
+
+(статья утратила силу)
+(год обновления датасета)

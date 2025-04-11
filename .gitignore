@@ -1,5 +1,7 @@
 venv/
 note
 .env
-data/
+data/parsed/*
+data/vector/*
 /**/__pycache__/
+/**/.pytest_cache

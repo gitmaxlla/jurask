@@ -1,31 +1,43 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict
+from typing import List, Dict, Tuple
 
 
-class AugmentedLawQuery(BaseModel):
-    """Выбор юридического документа, сгенерированные ключевые слова и формальная версия вопроса на основе запроса пользователя, для последующего поиска в базе данных."""
+class SearchResponse(BaseModel):
+    """Указание списка документов, к которым нужно обратиться для ответа пользователю, 
+    и сами вопросы к базе данных этих документов"""
 
-    choice: str = Field(description="Название раздела из переданного их списка.")
-    keywords: List[str] = Field(description="Ключевые слова, на основе которых можно было бы найти юридические документы, в которых содержится ответ на вопрос пользователя.")
-    question: str = Field(description="Запрос пользователя, переписанный в нейтрально-деловом, юридическом, официальном стиле.")
+    thinking_process: str = \
+        Field(description="Длинный развёрнутый пошаговый ход мыслей и рассуждения о задаче.")
+    question_is_relevant: bool = \
+        Field(description="Позволяют ли указанные документы ответить на запрос пользователя?")
+    queries_to_make: List[Tuple[str, str]] = \
+        Field(description="Список выбранных пар (Документ, Запрос).")
 
+class AnswerResponse(BaseModel):
+    """Ответ пользователю и список отсылок НА ПРЕДОСТАВЛЕННЫЕ ДОКУМЕНТЫ"""
 
-class AnswerQuery(BaseModel):
-    """Рассмотрение предоставленных юридических документов и продуманный ответ на запрос пользователя."""
-    answer: str = Field("Продуманный ответ пользователю.")
-    articles: List[str] = Field(description="Выбранные и использованные для ответа пользователю статьи из данных")
+    thinking_process: str = \
+        Field(description="ДЛИННЫЙ РАЗВЁРНУТЫЙ ХОД РАССУЖДЕНИЯ НАД ЗАПРОСОМ, включая размышления о том, куда и какие отсылки поставить")
+    final_answer: str = \
+        Field(description="Ответ пользователю.")
+    used_references: Dict[int, str] = \
+        Field(description="Соотвествия номера отсылки и испольованного документа.")
+    
+class JudgeFormResponse(BaseModel):
+    """Оценка ответа юридического консультанта по форме ответа"""
 
+    criteria1_consideration: str = \
+        Field(description="Рассуждения насчёт того, какую оценку поставить по первому критерию.")
+    criteria1_score: int = \
+        Field(description="Оценка 0-2.")
 
-class UserQuestion(BaseModel):
-    contents: str
+    
+class JudgeContentResponse(BaseModel):
+    """Ответ пользователю и список отсылок НА ПРЕДОСТАВЛЕННЫЕ ДОКУМЕНТЫ"""
 
-
-class GeneratedResponse(BaseModel):
-    answer: str
-    articles: Dict
-
-
-class SearchQuery:
-    def __init__(self, user_input, picked_section):
-        self.user_input = user_input
-        self.picked_section = picked_section
+    thinking_process: str = \
+        Field(description="ДЛИННЫЙ РАЗВЁРНУТЫЙ ХОД РАССУЖДЕНИЯ НАД ЗАПРОСОМ, включая размышления о том, куда и какие отсылки поставить")
+    final_answer: str = \
+        Field(description="Ответ пользователю.")
+    used_references: Dict[int, str] = \
+        Field(description="Соотвествия номера отсылки и испольованного документа.")

@@ -1,0 +1,58 @@
+paths:
+  database-path: data/vector/
+  parsed-data-path: data/parsed/
+  dataset-index-path: data/augment/
+
+stages:
+  parse:
+    skip:
+    include: all
+    module: project.parse
+
+  embed:
+    skip:
+    include: [constitution, education]
+    except: [constitution]
+    module: project.vector_db
+
+  store:
+    skip:
+    include: all
+    module: project.reference_db
+
+  test:
+    skip:
+    module: project.testing.llm_judge_test
+  
+  cli:
+    skip:
+    module: project.llm
+
+  run:
+    skip:
+    module: project.web
+
+documents:
+  - id: constitution
+    url: https://www.garant.ru/doc/constitution/
+    description: Конституция РФ
+  
+  - id: consumer_rights
+    url: https://base.garant.ru/10106035/
+    description: ФЗ "О защите прав потребителей"
+
+  - id: advertisements
+    url: https://base.garant.ru/12145525/
+    description: ФЗ "О рекламе"
+
+  - id: llc
+    url: https://base.garant.ru/12109720/
+    description: ФЗ "Об ООО"
+
+  - id: education
+    url: https://base.garant.ru/70291362/
+    description: ФЗ "Об Образовании"
+
+  - id: jsc
+    url": https://base.garant.ru/10105712/
+    description: ФЗ "Об АО"

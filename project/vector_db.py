@@ -1,16 +1,26 @@
 import json
 from pymilvus import MilvusClient
-from pymilvus import model
 from sentence_transformers import SentenceTransformer
 import os
-from .data_models import SearchQuery
-from tqdm import tqdm
 from dotenv import load_dotenv
-import itertools
+from .prompts import VECTOR_SEARCH_TASK
 
 
 load_dotenv()
 
+
+DATABASE_PATH = None
+INDEX_PATH = None
+PARSED_PATH = None
+
+model = SentenceTransformer("intfloat/multilingual-e5-large-instruct")
+client = None
+
+if "MILVUS_URI" not in os.environ:
+    client = MilvusClient("../data/vector/main.db")
+else:
+    client = MilvusClient(uri=os.environ["MILVUS_URI"],
+                            token=os.environ["MILVUS_TOKEN"])
 
 class Chunker:
     '''
@@ -46,6 +56,7 @@ class Chunker:
         for i in range(0, len_in_words, step):
             limit = min(len_in_words, i + self.words_per_chunk)
             result.append(" ".join(words[i:limit]))
+            if limit == len_in_words: break
         
         return result
 
@@ -53,9 +64,9 @@ class Chunker:
         for str in arr:
             if self.too_big(str):
                 location = arr.index(str)
-                arr[location:location + 1] = \
-                self.break_apart(str)
-        
+                replace_with = self.break_apart(str)
+                arr = arr[:location] + replace_with + arr[location+1:]
+
         return arr
 
     def assemble_granular(self, arr):
@@ -64,33 +75,51 @@ class Chunker:
         word_counter = 0
 
         for i in range(len(arr)):
-            next_len = self.word_len(arr[i])
-            prospective_len = word_counter + next_len
+            next_word_len = self.word_len(arr[i])
+
+            prospective_len = word_counter + next_word_len
+
             if prospective_len > self.words_per_chunk:
                 self.__push_chunk(chunks, buffer)
                 buffer = []
                 word_counter = 0
-            else:
-                buffer.append(arr[i])
-                word_counter += next_len
 
-            remainder = buffer
-            self.__push_chunk(chunks, remainder)
+            buffer.append(arr[i])
+            word_counter += next_word_len
 
-        print(chunks)
-        print("-------------------")
+        remainder = buffer
+        self.__push_chunk(chunks, remainder)
         return chunks
 
 
 class Dataframe:
-    def __init__(self, id, name, schema_mode=False):
-        self.id = id
-        self.name = name
+    def __init__(self, filename):
         self.data = None
 
-        if not schema_mode:
-            with open(f"data/parsed/{self.id}.json") as f: 
-                self.data = json.load(f)
+        with open(f"{PARSED_PATH}{filename}.json") as f: 
+            self.data = json.load(f)
+
+        metadata = self.data["metadata"]
+
+        self.id = metadata["id"]
+        self.name = metadata["name"]
+
+        print(f"-> {self.name}\n")
+
+        self.data = self.data["content"]
+        index_entry = list(self.data.keys())
+
+        with open(f"{INDEX_PATH}index.json") as f:
+            current_index = json.load(f)
+
+        current_index["content"][self.name] = \
+            index_entry
+
+        current_index["map"][self.name] = \
+            self.id
+
+        with open(f"{INDEX_PATH}index.json", "w") as f: 
+            json.dump(current_index, f, indent=2, ensure_ascii=False)
 
     def is_schema(self):
         return self.data is None
@@ -106,8 +135,9 @@ class Dataframe:
                 paragraphs = self.data[chapter][article]
 
                 chunker = Chunker()
-                chunker.granularize(paragraphs)
-                chunks = chunker.assemble_granular(paragraphs)
+                chunks = chunker.assemble_granular(
+                    chunker.granularize(paragraphs)
+                )
 
                 for chunk in chunks:
                     result.append({
@@ -123,8 +153,6 @@ class Dataframe:
 
     def build_embedding_table(self, embed_fn):
         chunks = self.get_chunks()
-        print(chunks)
-        return
 
         vectors = embed_fn(sentences=[chunk["text"] for chunk in chunks],
                            show_progress_bar=True)
@@ -132,11 +160,9 @@ class Dataframe:
         result = []
         id_counter = 0
 
-        for chunk in tqdm(chunks, 
-                          desc="Adding entries to the vector database"):
+        for chunk in chunks:
             result.append({
                 "id": id_counter,
-                "law_id": self.id,
                 "law_name": self.name,
                 "chapter": chunk["chapter"],
                 "article": chunk["article"],
@@ -146,39 +172,24 @@ class Dataframe:
             id_counter += 1
                    
         return result
-    
 
-model = SentenceTransformer("intfloat/multilingual-e5-large-instruct")
-client = MilvusClient("data/vector/main.db")
-#client = MilvusClient(uri=os.environ["ZILLIZ_CLUSTER_ENDPOINT"],
-#                      token=os.environ["ZILLIZ_CLUSTER_TOKEN"])
-
-
-def search_database(client: MilvusClient, dataframe: Dataframe, query: SearchQuery, embed_fn=model.encode):
-    collection = dataframe.id
+def search_database(client: MilvusClient, dataset_id: str, query: str, limit=2, embed_fn=model.encode):
+    collection = dataset_id
     if not client.has_collection(collection_name=collection): 
         raise KeyError
     
-    query_vector = embed_fn([query.user_input])
+    query_vector = embed_fn([
+        f'Instruct: {VECTOR_SEARCH_TASK}\nQuery: {query}'
+    ])
 
     result = client.search(
         collection_name=collection,
         data=query_vector,
-        filter=f"chapter == '{query.picked_section}'",
-        output_fields=["chapter", "article", "text"],
-        limit=10
+        output_fields=["law_name", "chapter", "article", "text", "id"],
+        limit=limit
     )
 
     return result[0]
-
-def format_search_result(search_result):
-    result = ""
-
-    for item in search_result:
-        entry = item["entity"]
-        result += f"{entry["chapter"]}\n{entry["article"]}\n{entry["text"]}\n\n"
-    
-    return result
 
 def build_database(dataframe: Dataframe):
     vector_table = \
@@ -193,16 +204,25 @@ def build_database(dataframe: Dataframe):
         dimension=1024
     )
 
+    print("Adding entries to the vector database...")
     return client.insert(collection_name=collection, 
                          data=vector_table)
 
+def clean_index():
+    with open(f"{INDEX_PATH}index.json", "w") as f:
+        f.write('{"map":{}, "content":{}}')
 
-if __name__ == "__main__":
-    DATASET_IDS = ["constitution", 
-                   "consumer_rights"
-                  ]
+def main(datasets, paths):
+    global INDEX_PATH, PARSED_PATH, DATABASE_PATH
+    clean_index()
 
-    for dataset_id in DATASET_IDS:
-        print(f'Building ID: {id}...')
-        df = Dataframe(id=id)
+    INDEX_PATH = paths["dataset-index-path"]
+    PARSED_PATH = paths["parsed-data-path"]
+    DATABASE_PATH = paths["database-path"]
+
+    dataset_files = [item['id'] for item in datasets]
+
+    for dataset_file in dataset_files:
+        print(f'\nBuilding dataset (ID: {dataset_file})...')
+        df = Dataframe(filename=dataset_file)
         build_database(df)

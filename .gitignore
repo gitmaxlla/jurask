@@ -3,5 +3,7 @@ note
 .env
 data/parsed/*
 data/vector/*
+data/augment/*
 /**/__pycache__/
 /**/.pytest_cache
+logs/*

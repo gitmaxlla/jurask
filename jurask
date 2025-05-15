@@ -1,0 +1,69 @@
+#! /usr/bin/env python
+
+import importlib
+import yaml
+import sys
+
+
+def main():
+    config = None
+    to_run = sys.argv[1:]
+
+    with open("jurask.yaml") as stream:
+        try:
+            config = yaml.safe_load(stream)
+        except Exception as e:
+            print("Error loading configuration")
+            exit()
+
+    documents = config['documents']
+    from_config = False
+
+    if len(to_run) == 0:
+        from_config = True
+        to_run = config['stages']
+
+    for stage in to_run:
+        if stage not in config['stages']:
+            print(f"Skipping {stage}... (Not found)")
+            continue
+
+        params = config['stages'][stage]
+        if not params:
+            params = {'skip': None}
+
+        if from_config:
+            if 'skip' in params:
+                print(f"Skipping {stage}...")
+                continue
+
+        include = params.setdefault('include', ['*'])
+        exclude = params.setdefault('except', [])
+        
+        if params['except'] is None: exclude = []
+        if params['include'] is None: include = []
+
+        if include == "all":
+            include = [document['id'] 
+                       for document in documents]
+
+        selected_documents = []
+
+        for document in documents:
+            id = document['id']
+            if id in include and id not in exclude:
+                selected_documents.append(document)
+    
+        if selected_documents:
+            print((f"Running {stage} for"),
+                (f"{[str(document["id"]) for document 
+                    in selected_documents]} ..."))
+        else:
+            print(f"Running {stage}...")
+        
+        module = importlib.import_module(params['module'])
+        module.main(selected_documents, config["paths"])
+
+
+if __name__ == "__main__":
+    main()

@@ -15,23 +15,54 @@
     <body>
         <div class="wrapper">
             <header>
-                <div>
+                <div class="flexbox-item">
                     <div id="title-icon">
                         <img id="main-icon" src="jurask_logo.png">
                         JURASK
                     </div>
-                    
-                    <div id="input-area">
+
+                    <div id="input-area" class="animatable">
                         <div id="input" contenteditable="true">Какие права гарантируются гражданам РФ?</div>
                         <button type="button" id="submit">Спросить</button>
                     </div>
                 </div>
 
-                <hr>
+                <hr id="main-separator">
             </header>
 
             <main>
-                <p id="status">Добро пожаловать в систему Jurask! Данная система использует возможности языковых моделей для умного поиска информации по Конституции РФ. Чтобы начать, введите свой запрос выше.</p>
+                <div id="status">
+                    <p>
+                        <b>Добро пожаловать в систему Jurask!</b>
+                        Данная система использует возможности языковых моделей для умного поиска 
+                        информации по законодательству РФ. Чтобы начать, введите свой запрос выше.
+                    </p>
+                    <br>
+                    <p>
+                        <b>Поддерживаемые законы:</b>
+                        <ul>
+                            <li> Добавьте список поддерживаемых законов в project/static/index.html 
+                        </ul>
+                    </p>
+                    <br>
+                    <p>
+                        <b>Рекомендации по составлению запроса к системе:</b>
+                        <ul>
+                            <li>
+                                По возможности разбивайте сложный запрос на <b>несколько небольших</b>,
+                                иначе программа может с ним не справиться;
+                            </li>
+
+                            <li>
+                                Пишите <b>лаконично</b>, <b>понятно</b> и в <b>официально-деловом стиле</b>;
+                            </li>
+
+                            <li>
+                                Используйте <b>подходящие термины</b> по мере своих знаний.
+                            </li>
+                        </ul>
+                    </p>
+                </div>
 
                 <div id="answer" class="">
                     <p id="answer-text">
@@ -42,9 +73,9 @@
                 <div id="references">
                 </div>
             </main>
-        </div>
 
-        <footer></footer>
+            <footer><b>gitmaxlla // 2025</b></footer>
+        </div>
 
         <div id="input-measure-wrapper" style="display: flex; position: absolute; top: 0px;">
             <div id="input-width-measure" class="hidden" contenteditable="true">Какие права гарантируются гражданам РФ?</div>
